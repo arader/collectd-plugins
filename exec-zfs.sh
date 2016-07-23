@@ -10,6 +10,8 @@ POOL_STATUS_CMD="${POOL_STATUS_CMD:-zpool status \$1}"
 
 LIST_DATASETS_CMD="${LIST_DATASETS_CMD:-zfs list -Hp -o name,usedds,usedchild,usedsnap,usedrefreserv,avail}" 
 
+TIME_CMD="${TIME_CMD:-date +%s}"
+
 if [ "$INTERVAL" -lt 300 ]
 then
     INTERVAL=300
@@ -113,7 +115,7 @@ process_datasets()
 
 process_dataset()
 {
-    dataset=$(echo $1 | sed 's|/|.|g')
+    local dataset=$(echo $1 | sed 's|/|.|g')
 
     echo "PUTVAL $HOSTNAME/zfs-$dataset/bytes-usedds interval=$INTERVAL $TIME:$2"
     echo "PUTVAL $HOSTNAME/zfs-$dataset/bytes-usedchild interval=$INTERVAL $TIME:$3"
@@ -124,11 +126,16 @@ process_dataset()
 
 while true
 do
-    TIME="$(date +%s)"
+    TIME=$($TIME_CMD)
 
     process_pools
 
     process_datasets
 
-    sleep "$INTERVAL"
+    if [ -z "$RUN_ONCE" ]
+    then
+        sleep "$INTERVAL"
+    else
+        exit
+    fi
 done
