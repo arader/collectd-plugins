@@ -17,10 +17,18 @@ then
     INTERVAL=300
 fi
 
-arg()
+argv()
 {
     shift $1
     echo $2
+}
+
+argc()
+{
+    local count=$1
+    shift
+
+    [ $count == $# ]
 }
 
 process_pools()
@@ -74,18 +82,19 @@ process_pool()
 
 process_pool_scrub_status()
 {
-    #TODO handle running scrub
-
     local repaired="U"
     local duration="U"
     local errors="U"
 
-    if [ "$2" != "scan: none requested" ]
+    local scrub_status=$(echo "$2" | sed -E -e 's/[^0-9]+([0-9]+)[^0-9]+([0-9]+h[0-9]+m)[^0-9]+([0-9]+).*/\1 \2 \3/' -e 'tx' -e 'd' -e ':x')
+
+    argc 3 $scrub_status
+
+    if [ $? == 0 ]
     then
-        local scrub_status=$(echo "$2" | sed -E 's/[^0-9]+ ([0-9]+) in ([0-9]+h[0-9]+m) with ([0-9]+) errors on (.*)/\1 \2 \3 \4/')
-        repaired=$(arg 0 $scrub_status)
-        duration=$(arg 1 $scrub_status | sed -E 's/^([0-9]+)h([0-9]+)m$/\1*3600 + \2*60/' | bc)
-        errors=$(arg 2 $scrub_status)
+        repaired=$(argv 0 $scrub_status)
+        duration=$(argv 1 $scrub_status | sed -E 's/^([0-9]+)h([0-9]+)m$/\1*3600 + \2*60/' | bc)
+        errors=$(argv 2 $scrub_status)
     fi
 
     echo "PUTVAL $HOSTNAME/zpool-$1/count-scrub-repaired interval=$INTERVAL $TIME:$repaired"
@@ -95,10 +104,14 @@ process_pool_scrub_status()
 
 process_pool_member_status()
 {
-    local device=$(arg 0 $2 | sed -e 's|^/||' -e 's|/|.|')
-    local read_count=$(arg 2 $2)
-    local write_count=$(arg 3 $2)
-    local cksum_count=$(arg 4 $2)
+    [ $# == 2 ] || return
+    [ ! -z $1 ] || return 
+    argc 5 $2 || return
+
+    local device=$(argv 0 $2 | sed -e 's|^/||' -e 's|/|.|')
+    local read_count=$(argv 2 $2)
+    local write_count=$(argv 3 $2)
+    local cksum_count=$(argv 4 $2)
 
     echo "PUTVAL $HOSTNAME/zpool-$1/count-read-errors.$device interval=$INTERVAL $TIME:$read_count"
     echo "PUTVAL $HOSTNAME/zpool-$1/count-write-errors.$device interval=$INTERVAL $TIME:$write_count"

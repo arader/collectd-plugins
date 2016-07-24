@@ -8,30 +8,82 @@ export TIME_CMD="echo 999999"
 export LIST_POOLS_CMD="echo test"
 export LIST_DATASETS_CMD=" "
 
-ec=0
+pass_total=0
+fail_total=0
 
-find ./tests -iname '*.status' | while read file
+green()
+{
+    printf '\033[0;32m%s\033[0m' "$@"
+}
+
+red()
+{
+    printf '\033[0;31m%s\033[0m' "$@"
+}
+
+white()
+{
+    printf '\033[0;37m%s\033[0m' "$@"
+}
+
+pass()
+{
+    green "PASS"
+    white ": "
+    echo $@
+
+    pass_total=$(echo "$pass_total + 1" | bc)
+}
+
+fail()
+{
+    red "FAIL"
+    white ": "
+    echo $@
+
+    fail_total=$(echo "$fail_total + 1" | bc)
+}
+
+#find ./tests -iname '*.status' | while read file
+tests=$(find ./tests -iname '*.status')
+
+for file in $tests
 do
     export POOL_STATUS_CMD="cat \"$file\""
     name="$(basename -s .status $file)"
 
     if [ ! -f "$file.expected" ]
     then
-        printf '\033[0;31mFAIL\033[0m\033[0;37m:\033[0m '
-        echo "$name doesn't have expected output file" >&2
-        ec=1
+        fail "$name missing expected output file"
         continue
     fi
 
-    ./exec-zfs.sh | diff - "$file.expected"
+    ./exec-zfs.sh 2>/dev/null | diff - "$file.expected" > /dev/null 2>&1
 
     if [ $? != 0 ]
     then
-        ec=1
+        fail "$name doesn't match expected output"
     else
-        printf '\033[0;32mPASS\033[0m\033[0;37m:\033[0m '
-        echo "$name"
+        pass $name
     fi
 done
 
-exit $ec
+echo
+
+test_total=$(echo "$pass_total + $fail_total" | bc)
+
+white "[ "
+
+if [ $test_total != 0 ] && [ $test_total == $pass_total ]
+then
+    green $pass_total
+else
+    red $pass_total
+fi
+
+white " / $test_total ] tests passed"
+
+echo
+
+[ $test_total == 0 ] && exit 1
+exit $fail_total
