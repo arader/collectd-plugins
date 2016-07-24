@@ -44,8 +44,7 @@ fail()
     fail_total=$(echo "$fail_total + 1" | bc)
 }
 
-#find ./tests -iname '*.status' | while read file
-tests=$(find ./tests -iname '*.status')
+tests=$(find ./tests/exec-zfs -iname '*.status')
 
 for file in $tests
 do
@@ -54,7 +53,7 @@ do
 
     if [ ! -f "$file.expected" ]
     then
-        fail "$name missing expected output file"
+        fail "exec-zfs - $name missing expected output file"
         continue
     fi
 
@@ -62,9 +61,9 @@ do
 
     if [ $? != 0 ]
     then
-        fail "$name doesn't match expected output"
+        fail "exec-zfs - $name doesn't match expected output"
     else
-        pass $name
+        pass "exec-zfs - $name"
     fi
 done
 
