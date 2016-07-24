@@ -8,10 +8,9 @@ config:
 	  mirror-0   ONLINE       4     5     6
 	    /root/1  ONLINE       7     8     9
 	    /root/2  ONLINE       10   11    12 
-	  mirror-1   ONLINE       13   14    15 
-	    /root/3  ONLINE       16   17    18
-	    /root/4  ONLINE       19   20    21
+	cache
+	  /root/3    ONLINE       13   14    15 
 	logs
-	  /root/5    ONLINE       22   23    24
+	  /root/4    ONLINE       16   17    18 
 
 errors: No known data errors

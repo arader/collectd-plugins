@@ -1,8 +1,6 @@
   pool: test
  state: ONLINE
-  scan: scrub in progress since Fri Jul 22 13:30:46 2016
-        1.26G scanned out of 41.1G at 259M/s, 0h2m to go
-        0 repaired, 3.07% done
+  scan: scrub repaired 0 in 0h3m with 1 errors on Mon Jul 18 03:05:21 2016
 config:
 
 	NAME         STATE     READ WRITE CKSUM
@@ -13,7 +11,9 @@ config:
 	  mirror-1   ONLINE       13   14    15 
 	    /root/3  ONLINE       16   17    18
 	    /root/4  ONLINE       19   20    21
-	logs
+	cache
 	  /root/5    ONLINE       22   23    24
+	logs
+	  /root/6    ONLINE       25   26    27
 
 errors: No known data errors

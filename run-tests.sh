@@ -44,7 +44,7 @@ fail()
     fail_total=$(echo "$fail_total + 1" | bc)
 }
 
-tests=$(find ./tests/exec-zfs -iname '*.status')
+tests=$(find -s ./tests/exec-zfs -iname '*.status')
 
 for file in $tests
 do

@@ -25,3 +25,6 @@ PUTVAL exec-tests.example.org/zpool-test/count-cksum-errors.root.4 interval=300 
 PUTVAL exec-tests.example.org/zpool-test/count-read-errors.root.5 interval=300 999999:22
 PUTVAL exec-tests.example.org/zpool-test/count-write-errors.root.5 interval=300 999999:23
 PUTVAL exec-tests.example.org/zpool-test/count-cksum-errors.root.5 interval=300 999999:24
+PUTVAL exec-tests.example.org/zpool-test/count-read-errors.root.6 interval=300 999999:25
+PUTVAL exec-tests.example.org/zpool-test/count-write-errors.root.6 interval=300 999999:26
+PUTVAL exec-tests.example.org/zpool-test/count-cksum-errors.root.6 interval=300 999999:27
