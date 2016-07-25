@@ -57,7 +57,12 @@ do
         continue
     fi
 
-    ./exec-zfs.sh 2>/dev/null | diff - "$file.expected" > /dev/null 2>&1
+    if [ "$1" == "-v" ]
+    then
+        ./exec-zfs.sh | diff - "$file.expected"
+    else
+        ./exec-zfs.sh 2>/dev/null | diff - "$file.expected" > /dev/null 2>&1
+    fi
 
     if [ $? != 0 ]
     then

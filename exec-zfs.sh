@@ -106,9 +106,15 @@ process_pool_member_status()
 {
     [ $# == 2 ] || return
     [ ! -z $1 ] || return 
-    argc 5 $2 || return
 
-    local device=$(argv 0 $2 | sed -e 's|^/||' -e 's|/|.|')
+    local name=""
+
+    argc 7 $2 && name=$(argv 6 $2)
+    argc 5 $2 && name=$(argv 0 $2)
+
+    [ ! -z $name ] || return
+
+    local device=$(echo $name | sed -e 's|^/||' -e 's|/|.|')
     local read_count=$(argv 2 $2)
     local write_count=$(argv 3 $2)
     local cksum_count=$(argv 4 $2)
@@ -149,6 +155,6 @@ do
     then
         sleep "$INTERVAL"
     else
-        exit
+        exit 0
     fi
 done
