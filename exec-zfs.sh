@@ -45,6 +45,12 @@ process_pool()
 
     eval $POOL_STATUS_CMD | while read line
     do
+        state_DEGRADED=${state_DEGRADED:-0}
+        state_FAULTED=${state_FAULTED:-0}
+        state_OFFLINE=${state_OFFLINE:-0}
+        state_ONLINE=${state_ONLINE:-0}
+        state_UNAVAIL=${state_UNAVAIL:-0}
+
         case $parsing in
             scan)
                 echo $line | grep -E '^scan: ' > /dev/null 2>&1
@@ -67,12 +73,15 @@ process_pool()
             status_info)
                 if [ "$line" == "" ]
                 then
-                    parsing=done
-                    break
+                    parsing=complete
+                    continue
                 fi
 
                 process_pool_member_status $1 "$line"
 
+                ;;
+            complete)
+                process_pool_states $1
                 ;;
             *)
                 ;;
@@ -115,6 +124,7 @@ process_pool_member_status()
     [ ! -z $name ] || return
 
     local device=$(echo $name | sed -e 's|^/||' -e 's|/|.|')
+    local state=$(argv 1 $2)
     local read_count=$(argv 2 $2)
     local write_count=$(argv 3 $2)
     local cksum_count=$(argv 4 $2)
@@ -122,6 +132,18 @@ process_pool_member_status()
     echo "PUTVAL $HOSTNAME/zpool-$1/count-read-errors.$device interval=$INTERVAL $TIME:$read_count"
     echo "PUTVAL $HOSTNAME/zpool-$1/count-write-errors.$device interval=$INTERVAL $TIME:$write_count"
     echo "PUTVAL $HOSTNAME/zpool-$1/count-cksum-errors.$device interval=$INTERVAL $TIME:$cksum_count"
+
+    local count=$(eval "echo \$state_$state + 1" | bc)
+    eval "state_$state=$count"
+}
+
+process_pool_states()
+{
+    echo "PUTVAL $HOSTNAME/zpool-$1/count-degraded-state interval=$INTERVAL $TIME:$state_DEGRADED"
+    echo "PUTVAL $HOSTNAME/zpool-$1/count-faulted-state interval=$INTERVAL $TIME:$state_FAULTED"
+    echo "PUTVAL $HOSTNAME/zpool-$1/count-offline-state interval=$INTERVAL $TIME:$state_OFFLINE"
+    echo "PUTVAL $HOSTNAME/zpool-$1/count-online-state interval=$INTERVAL $TIME:$state_ONLINE"
+    echo "PUTVAL $HOSTNAME/zpool-$1/count-unavail-state interval=$INTERVAL $TIME:$state_UNAVAIL"
 }
 
 process_datasets()
