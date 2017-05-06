@@ -6,7 +6,7 @@ HOSTNAME="${COLLECTD_HOSTNAME:-$(hostname -f)}"
 INTERVAL="${COLLECTD_INTERVAL:-300}"
 
 LIST_POOLS_CMD="${LIST_POOLS_CMD:-zpool list -H -o name}"
-POOL_STATUS_CMD="${POOL_STATUS_CMD:-zpool status \$1}"
+POOL_STATUS_CMD="${POOL_STATUS_CMD:-zpool status \$1}; echo EOF"
 
 LIST_DATASETS_CMD="${LIST_DATASETS_CMD:-zfs list -Hp -o name,usedds,usedchild,usedsnap,usedrefreserv,avail}" 
 
@@ -71,17 +71,14 @@ process_pool()
                 fi
                 ;;
             status_info)
-                if [ "$line" == "" ]
+                if [ "$line" == "" ] || [ "$line" == "EOF" ]
                 then
-                    parsing=complete
-                    continue
+                    process_pool_states $1
+                    break
                 fi
 
                 process_pool_member_status $1 "$line"
 
-                ;;
-            complete)
-                process_pool_states $1
                 ;;
             *)
                 ;;
