@@ -32,6 +32,14 @@ do
 
     stats=$(/usr/local/sbin/unbound-control stats 2>/dev/null)
 
+    # run through histogram values
+    for histogram in $(echo "$stats" | grep -i histogram.)
+    do
+        bound=$(echo "$histogram" | sed -e 's/.*to.\([^=]*\).*/\1/')
+        value=$(echo "$histogram" | sed -e 's/[^=]*=\(.*\)/\1/')
+        echo "PUTVAL $HOSTNAME/exec-unbound/count-$bound interval=$INTERVAL $time:${value:-U}"
+    done
+
     for counter in $COUNTERS
     do
         iscache=$(echo $counter | grep -i cache)
