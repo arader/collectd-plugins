@@ -92,15 +92,20 @@ process_pool_scrub_status()
     local duration="U"
     local errors="U"
 
-    local scrub_status=$(echo "$2" | sed -E -e 's/[^0-9]+([0-9]+)[^0-9]+([0-9]+h[0-9]+m)[^0-9]+([0-9]+).*/\1 \2 \3/' -e 'tx' -e 'd' -e ':x')
-
-    argc 3 $scrub_status
+    echo "$2" | grep -qv "none requested\|in progress" > /dev/null 2>&1
 
     if [ $? == 0 ]
     then
-        repaired=$(argv 0 $scrub_status)
-        duration=$(argv 1 $scrub_status | sed -E 's/^([0-9]+)h([0-9]+)m$/\1*3600 + \2*60/' | bc)
-        errors=$(argv 2 $scrub_status)
+        local scrub_status=$(echo "$2" | sed -E -e 's/[^0-9]*([0-9]+)[^0-9]*([0-9]+)[^0-9]*([0-9]+):([0-9]+):([0-9]+)[^0-9]*([0-9]+).*/\1 (\2*24*60*60)+(\3*60*60)+(\4*60)+\5 \6/')
+
+        argc 3 $scrub_status
+
+        if [ $? == 0 ]
+        then
+            repaired=$(argv 0 $scrub_status)
+            duration=$(argv 1 $scrub_status | bc)
+            errors=$(argv 2 $scrub_status)
+        fi
     fi
 
     echo "PUTVAL $HOSTNAME/zpool-$1/count-scrub-repaired interval=$INTERVAL $TIME:$repaired"

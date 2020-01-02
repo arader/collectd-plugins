@@ -1,5 +1,5 @@
 PUTVAL exec-tests.example.org/zpool-test/count-scrub-repaired interval=300 999999:0
-PUTVAL exec-tests.example.org/zpool-test/duration-scrub interval=300 999999:180
+PUTVAL exec-tests.example.org/zpool-test/duration-scrub interval=300 999999:123630
 PUTVAL exec-tests.example.org/zpool-test/count-scrub-errors interval=300 999999:1
 PUTVAL exec-tests.example.org/zpool-test/count-read-errors.test interval=300 999999:1
 PUTVAL exec-tests.example.org/zpool-test/count-write-errors.test interval=300 999999:2
