@@ -18,7 +18,7 @@ do
     for cpu in $CPUS
     do
         temp=$(sysctl -n dev.cpu.$cpu.temperature | sed 's/.$//')
-        echo "PUTVAL $HOSTNAME/exec-temps/cpu-$cpu interval=$INTERVAL $time:$temp"
+        echo "PUTVAL $HOSTNAME/temperatures-cpu/temperature-$cpu interval=$INTERVAL $time:$temp"
     done
 
     for disk in $DISKS
