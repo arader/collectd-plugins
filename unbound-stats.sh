@@ -2,7 +2,7 @@
 
 # A collectd 'exec' script used to get dns server stats from unbound
 
-HOSTNAME="${COLLECTD_HOSTNAME:-$(hostname -f)}"
+HOSTNAME="${COLLECTD_HOSTNAME:-$(hostname)}"
 INTERVAL="${COLLECTD_INTERVAL:-10}"
 
 COUNTERS="total.num.queries \
@@ -26,18 +26,20 @@ COUNTERS="total.num.queries \
     msg.cache.count \
     rrset.cache.count"
 
+CTRLBIN=$(which unbound-control 2>/dev/null)
+
 while sleep "$INTERVAL"
 do
     time=$(date +%s)
 
-    stats=$(/usr/local/sbin/unbound-control stats 2>/dev/null)
+    stats=$($CTRLBIN stats 2>/dev/null)
 
     # run through histogram values
     for histogram in $(echo "$stats" | grep -i histogram.)
     do
         bound=$(echo "$histogram" | sed -e 's/.*to.\([^=]*\).*/\1/')
         value=$(echo "$histogram" | sed -e 's/[^=]*=\(.*\)/\1/')
-        echo "PUTVAL $HOSTNAME/exec-unbound/count-$bound interval=$INTERVAL $time:${value:-U}"
+        echo "PUTVAL $HOSTNAME/unbound-histogram/count-$bound interval=$INTERVAL $time:${value:-U}"
     done
 
     for counter in $COUNTERS
@@ -53,6 +55,6 @@ do
         name=$(echo $counter | sed 's/\./-/g')
         value=$(echo "$stats" | sed -e "s/^$counter=\([^ ]*\)$/\1/" -e 'tx' -e 'd' -e ':x')
 
-        echo "PUTVAL $HOSTNAME/exec-unbound/$type-$name interval=$INTERVAL $time:${value:-U}"
+        echo "PUTVAL $HOSTNAME/unbound-counters/$type-$name interval=$INTERVAL $time:${value:-U}"
     done
 done
