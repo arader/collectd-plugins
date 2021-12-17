@@ -6,7 +6,7 @@ HOSTNAME="${COLLECTD_HOSTNAME:-$(hostname -f)}"
 INTERVAL="${COLLECTD_INTERVAL:-300}"
 
 LIST_POOLS_CMD="${LIST_POOLS_CMD:-zpool list -H -o name}"
-POOL_STATUS_CMD="${POOL_STATUS_CMD:-zpool status \$1}; echo EOF"
+POOL_STATUS_CMD="${POOL_STATUS_CMD:-zpool status \$1 2>/dev/null}; echo EOF"
 
 LIST_DATASETS_CMD="${LIST_DATASETS_CMD:-zfs list -Hp -o name,usedds,usedchild,usedsnap,usedrefreserv,avail}" 
 
