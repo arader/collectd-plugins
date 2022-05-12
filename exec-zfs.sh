@@ -6,13 +6,13 @@ HOSTNAME="${COLLECTD_HOSTNAME:-$(hostname -f)}"
 INTERVAL="${COLLECTD_INTERVAL:-300}"
 
 LIST_POOLS_CMD="${LIST_POOLS_CMD:-zpool list -H -o name}"
-POOL_STATUS_CMD="${POOL_STATUS_CMD:-zpool status \$1 2>/dev/null}; echo EOF"
+POOL_STATUS_CMD="${POOL_STATUS_CMD:-zpool status \$1}; echo EOF"
 
 LIST_DATASETS_CMD="${LIST_DATASETS_CMD:-zfs list -Hp -o name,usedds,usedchild,usedsnap,usedrefreserv,avail}" 
 
 TIME_CMD="${TIME_CMD:-date +%s}"
 
-if [ "$INTERVAL" -lt 300 ]
+if [ $( echo "$INTERVAL < 300" | bc) != 0 ]
 then
     INTERVAL=300
 fi

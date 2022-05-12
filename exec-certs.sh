@@ -3,7 +3,7 @@
 # A collectd 'exec' script used to get the number of seconds until certs expire
 
 HOSTNAME="${COLLECTD_HOSTNAME:-$(hostname -f)}"
-INTERVAL="${COLLECTD_INTERVAL:-10}"
+INTERVAL="${COLLECTD_INTERVAL:-300}"
 
 PATH=$PATH:/usr/local/bin
 
@@ -15,9 +15,9 @@ fi
 
 HOSTS=$@
 
-if [ "$INTERVAL" -lt 60 ]
+if [ $( echo "$INTERVAL < 300" | bc) != 0 ]
 then
-    INTERVAL=60
+    INTERVAL=300
 fi
 
 while sleep "$INTERVAL"
